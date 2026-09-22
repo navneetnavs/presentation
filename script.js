@@ -19,12 +19,10 @@ let lastScroll = 0;
 window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset;
     
-    if (currentScroll > 100) {
-        navbar.style.background = 'rgba(45, 90, 39, 0.95)';
-        navbar.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+    if (currentScroll > 50) {
+        navbar.classList.add('scrolled');
     } else {
-        navbar.style.background = '#2d5a27';
-        navbar.style.boxShadow = 'none';
+        navbar.classList.remove('scrolled');
     }
     
     lastScroll = currentScroll;
@@ -55,39 +53,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // Animate cards with stagger effect
-    const cards = document.querySelectorAll('.hero-card, .problem-card, .opp-card, .trust-item, .persona-card, .app-screen, .metric-card, .founder-card');
+    const cards = document.querySelectorAll('.step-card, .feature-card, .founder-card, .testimonial-card, .faq-item, .pricing-card');
     cards.forEach((card, index) => {
         card.classList.add('scale-in');
         card.style.transitionDelay = `${index * 0.1}s`;
         observer.observe(card);
     });
     
-    // Animate flow items
-    const flowItems = document.querySelectorAll('.flow-card, .growth-step, .journey-step, .segment-phase');
-    flowItems.forEach((item, index) => {
+    // Animate benefit items
+    const benefitItems = document.querySelectorAll('.benefit-item');
+    benefitItems.forEach((item, index) => {
         item.classList.add('slide-in-left');
         item.style.transitionDelay = `${index * 0.15}s`;
         observer.observe(item);
     });
     
-    // Animate value boxes
-    const valueBoxes = document.querySelectorAll('.value-box, .canvas-box');
-    valueBoxes.forEach((box, index) => {
+    // Animate stat boxes
+    const statBoxes = document.querySelectorAll('.stat-box');
+    statBoxes.forEach((box, index) => {
         box.classList.add('slide-in-right');
         box.style.transitionDelay = `${index * 0.1}s`;
         observer.observe(box);
     });
-    
-    // Animate steps
-    const steps = document.querySelectorAll('.step');
-    steps.forEach((step, index) => {
-        step.classList.add('fade-in');
-        step.style.transitionDelay = `${index * 0.1}s`;
-        observer.observe(step);
-    });
 });
 
-// Counter animation for financial metrics
+// Counter animation for stats
 function animateCounter(element, target, duration = 2000) {
     let start = 0;
     const increment = target / (duration / 16);
@@ -103,73 +93,35 @@ function animateCounter(element, target, duration = 2000) {
     }, 16);
 }
 
+// Animate stat numbers when they come into view
+const statNumbers = document.querySelectorAll('.stat-number, .metric-value');
+const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const text = entry.target.textContent;
+            const number = parseInt(text.replace(/[^0-9]/g, ''));
+            if (!isNaN(number)) {
+                animateCounter(entry.target, number);
+            }
+            statsObserver.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.5 });
+
+statNumbers.forEach(stat => statsObserver.observe(stat));
+
 // Parallax effect for hero section
 window.addEventListener('scroll', () => {
     const hero = document.querySelector('.hero');
     const scrolled = window.pageYOffset;
     
-    if (hero) {
-        hero.style.backgroundPositionY = `${scrolled * 0.5}px`;
+    if (hero && scrolled < window.innerHeight) {
+        const heroRight = document.querySelector('.hero-right');
+        if (heroRight) {
+            heroRight.style.transform = `translateY(${scrolled * 0.1}px)`;
+        }
     }
 });
-
-// Button hover effects
-const buttons = document.querySelectorAll('button');
-buttons.forEach(button => {
-    button.addEventListener('mouseenter', () => {
-        button.style.transform = 'translateY(-3px)';
-    });
-    
-    button.addEventListener('mouseleave', () => {
-        button.style.transform = 'translateY(0)';
-    });
-});
-
-// Card tilt effect
-const tiltCards = document.querySelectorAll('.hero-card, .problem-card, .opp-card, .persona-card, .founder-card');
-
-tiltCards.forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        
-        const rotateX = (y - centerY) / 10;
-        const rotateY = (centerX - x) / 10;
-        
-        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
-    });
-    
-    card.addEventListener('mouseleave', () => {
-        card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
-    });
-});
-
-// Typing effect for hero quote
-const heroQuote = document.querySelector('.hero-quote');
-if (heroQuote) {
-    const text = heroQuote.textContent;
-    heroQuote.textContent = '';
-    
-    let index = 0;
-    const typeWriter = () => {
-        if (index < text.length) {
-            heroQuote.textContent += text.charAt(index);
-            index++;
-            setTimeout(typeWriter, 50);
-        }
-    };
-    
-    // Start typing after a delay
-    setTimeout(typeWriter, 1000);
-}
-
-// Mobile menu toggle (for future enhancement)
-const navMenu = document.querySelector('.nav-menu');
-const navCta = document.querySelector('.nav-cta');
 
 // Add active state to navigation based on scroll position
 const sections = document.querySelectorAll('section[id]');
@@ -195,19 +147,12 @@ window.addEventListener('scroll', () => {
     });
 });
 
-// Smooth reveal for table rows
-const tableRows = document.querySelectorAll('.financial-table tbody tr');
-tableRows.forEach((row, index) => {
-    row.classList.add('fade-in');
-    row.style.transitionDelay = `${index * 0.1}s`;
-    observer.observe(row);
-});
-
 // Phone mockup animation
 const phoneMockup = document.querySelector('.phone-mockup');
 if (phoneMockup) {
     phoneMockup.addEventListener('mouseenter', () => {
         phoneMockup.style.transform = 'scale(1.05) rotateY(10deg)';
+        phoneMockup.style.transition = 'transform 0.3s ease';
     });
     
     phoneMockup.addEventListener('mouseleave', () => {
@@ -215,10 +160,33 @@ if (phoneMockup) {
     });
 }
 
-// CTA button ripple effect
-const ctaButton = document.querySelector('.cta-button');
-if (ctaButton) {
-    ctaButton.addEventListener('click', function(e) {
+// Card tilt effect for business cards
+const tiltCards = document.querySelectorAll('.step-card, .feature-card, .founder-card, .testimonial-card, .faq-item');
+
+tiltCards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const rotateX = (y - centerY) / 20;
+        const rotateY = (centerX - x) / 20;
+        
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+    });
+    
+    card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+    });
+});
+
+// Button ripple effect
+const buttons = document.querySelectorAll('.btn-primary, .btn-secondary, .btn-outline');
+buttons.forEach(button => {
+    button.addEventListener('click', function(e) {
         const ripple = document.createElement('span');
         const rect = this.getBoundingClientRect();
         
@@ -238,7 +206,7 @@ if (ctaButton) {
         
         setTimeout(() => ripple.remove(), 600);
     });
-}
+});
 
 // Add ripple animation to CSS dynamically
 const style = document.createElement('style');
@@ -259,7 +227,7 @@ progressBar.style.cssText = `
     top: 0;
     left: 0;
     height: 3px;
-    background: linear-gradient(90deg, #4a7c42, #6b9e62);
+    background: linear-gradient(90deg, #2563eb, #10b981);
     z-index: 1001;
     transition: width 0.1s ease;
 `;
@@ -272,21 +240,38 @@ window.addEventListener('scroll', () => {
     progressBar.style.width = `${scrollPercent}%`;
 });
 
-// Lazy load images (if any are added later)
-if ('IntersectionObserver' in window) {
-    const imageObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src;
-                img.classList.remove('lazy');
-                imageObserver.unobserve(img);
+// Form interactions
+const contactForm = document.querySelector('.contact-form');
+if (contactForm) {
+    contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Simple form validation feedback
+        const inputs = contactForm.querySelectorAll('input, textarea');
+        let isValid = true;
+        
+        inputs.forEach(input => {
+            if (!input.value.trim()) {
+                isValid = false;
+                input.style.borderColor = '#ef4444';
+            } else {
+                input.style.borderColor = '#f1f5f9';
             }
         });
-    });
-    
-    document.querySelectorAll('img.lazy').forEach(img => {
-        imageObserver.observe(img);
+        
+        if (isValid) {
+            // Show success message
+            const button = contactForm.querySelector('button');
+            const originalText = button.textContent;
+            button.textContent = 'Message Sent!';
+            button.style.background = '#10b981';
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.background = '';
+                contactForm.reset();
+            }, 3000);
+        }
     });
 }
 
@@ -295,15 +280,6 @@ window.addEventListener('load', () => {
     document.body.classList.add('loaded');
 });
 
-// Form interactions (for future forms)
-const forms = document.querySelectorAll('form');
-forms.forEach(form => {
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        // Add form submission logic here
-    });
-});
-
 // Console welcome message
-console.log('%c Welcome to NeighbourShare! ', 'background: #2d5a27; color: white; padding: 10px; font-size: 16px; border-radius: 5px;');
-console.log('%c Share • Borrow • Rent • Belong ', 'color: #4a7c42; font-size: 14px; font-weight: bold;');
+console.log('%c Welcome to NeighbourShare! ', 'background: #2563eb; color: white; padding: 10px; font-size: 16px; border-radius: 5px;');
+console.log('%c The Hyper-Local Sharing Platform ', 'color: #10b981; font-size: 14px; font-weight: bold;');
